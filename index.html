@@ -4,14 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QRコードスキャナー</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        #video {
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+    </style>
     <!-- jsQRライブラリをCDNから読み込み -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 </head>
 <body>
     <h1>QRコードスキャナー</h1>
-    <video id="video" width="300" height="200" style="border: 1px solid gray"></video>
+    <video id="video" width="300" height="200"></video>
     <canvas id="canvas" style="display:none;"></canvas>
-    <div id="output"></div>
+    <div id="output">QRコードをスキャン中...</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
