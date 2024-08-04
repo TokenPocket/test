@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile QR Code Reader</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #header {
+            padding: 20px;
+            text-align: center;
+            background-color: #1a1a1a;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        #qr-canvas {
+            width: 100%;
+            height: calc(100vh - 180px);
+            object-fit: cover;
+        }
+        #start-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 18px;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+        #qr-result {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>Mobile QR Scanner</h1>
+    </div>
+    <canvas id="qr-canvas"></canvas>
+    <button id="start-button">Start Scanning</button>
+    <div id="qr-result"></div>
+
+    <script>
+        const video = document.createElement("video");
+        const canvasElement = document.getElementById("qr-canvas");
+        const canvas = canvasElement.getContext("2d");
+        const qrResult = document.getElementById("qr-result");
+        const startButton = document.getElementById("start-button");
+        const targetURL = "https://example.com"; // リダイレクト先のURLを指定
+
+        function startQRReader() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.setAttribute("playsinline", true);
+                    video.play();
+                    requestAnimationFrame(tick);
+                    startButton.style.display = 'none';
+                })
+                .catch(function(err) {
+                    console.error("Error accessing the camera", err);
+                    qrResult.textContent = "Error accessing the camera. Please make sure you've granted permission.";
+                });
+        }
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+                if (code) {
+                    qrResult.textContent = "QR Code detected! Redirecting...";
+                    setTimeout(() => {
+                        window.location.href = targetURL;
+                    }, 1000);
+                    return;
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+
+        startButton.onclick = startQRReader;
+
+        // Prevent bounce on iOS
+        document.body.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+    </script>
+</body>
+</html>
