@@ -13,19 +13,24 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: #f7f9fc;
         }
         h1 {
             color: #333;
+            margin-bottom: 20px;
         }
         #video {
+            width: 90%;
+            max-width: 600px;
             border: 2px solid #333;
             border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         #output {
             margin-top: 20px;
             font-size: 1.2em;
             color: #333;
+            text-align: center;
         }
     </style>
     <!-- jsQRライブラリをCDNから読み込み -->
@@ -33,7 +38,7 @@
 </head>
 <body>
     <h1>QRコードスキャナー</h1>
-    <video id="video" width="300" height="200"></video>
+    <video id="video"></video>
     <canvas id="canvas" style="display:none;"></canvas>
     <div id="output">QRコードをスキャン中...</div>
 
