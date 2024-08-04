@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QRコードスキャナー</title>
     <!-- jsQRライブラリをCDNから読み込み -->
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 </head>
 <body>
     <h1>QRコードスキャナー</h1>
@@ -14,37 +14,43 @@
     <div id="output"></div>
 
     <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const output = document.getElementById('output');
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const output = document.getElementById('output');
 
-        // カメラの起動
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(function(stream) {
-                video.srcObject = stream;
-                video.setAttribute('playsinline', true); // iOS Safariで必要
-                video.play();
-                requestAnimationFrame(tick);
-            });
-
-        function tick() {
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                var code = jsQR(imageData.data, imageData.width, imageData.height, {
-                    inversionAttempts: "dontInvert",
+            // カメラの起動
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true); // iOS Safariで必要
+                    video.play();
+                    requestAnimationFrame(tick);
+                })
+                .catch(function(err) {
+                    console.error("Error accessing the camera: ", err);
+                    output.innerText = "カメラにアクセスできませんでした: " + err.message;
                 });
-                if (code) {
-                    output.innerText = "QRコードが見つかりました: " + code.data;
-                } else {
-                    output.innerText = "QRコードをスキャン中...";
+
+            function tick() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    if (code) {
+                        output.innerText = "QRコードが見つかりました: " + code.data;
+                    } else {
+                        output.innerText = "QRコードをスキャン中...";
+                    }
                 }
+                requestAnimationFrame(tick);
             }
-            requestAnimationFrame(tick);
-        }
+        });
     </script>
 </body>
 </html>
